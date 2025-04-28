@@ -19,7 +19,7 @@ const sendEmail = async (
 ) => {
   try {
     const info = await mailTransporter.sendMail({
-      from: "temp@krushang.dev",
+      from: "Krushang <temp@krushang.dev>",
       to: recipientEmail,
       subject,
       text: message,
