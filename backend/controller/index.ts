@@ -192,10 +192,6 @@ const getStockDataByTicker = async (
           month: "2025-04",
         },
       });
-      console.log(
-        response.data["Time Series (15min)"],
-        typeof response.data["Time Series (15min)"]
-      );
       await setRedisItem(
         redisQuery,
         JSON.stringify(response.data["Time Series (15min)"])
