@@ -30,9 +30,9 @@ const LoginPage = () => {
   });
 
   const handleSubmit = async (values: any) => {
+    setLoading(true);
     try {
       const { email, password } = values;
-      setLoading(true);
       let userData;
       if (isLogin) {
         const { user }: any = await signInWithEmailAndPassword(
@@ -63,12 +63,12 @@ const LoginPage = () => {
         email: "",
         password: "",
       });
-      setLoading(false);
       router.replace("/");
     } catch (e: any) {
       console.error("Error:", e.message, e.code);
       alert(e.message);
     }
+    setLoading(false);
   };
 
   return (
