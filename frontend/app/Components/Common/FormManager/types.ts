@@ -1,4 +1,4 @@
-import React from "react";
+import React, { JSX } from "react";
 import { AnyObjectSchema } from "yup";
 export interface FormManagerProps {
   children: (arg0: childrenProps) => JSX.Element | JSX.Element[];
