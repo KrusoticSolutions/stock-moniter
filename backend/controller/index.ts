@@ -178,7 +178,10 @@ const getStockDataByTicker = async (
     console.log("redisQuery", redisQuery);
     const redisData = await getRedisItem(redisQuery);
     let redisDataParsed = JSON.parse(redisData ?? "{}");
-    if (Object.keys(redisDataParsed).length === 0) {
+
+    const today = new Date().toISOString().split("T")[0];
+
+    if (Object.keys(redisDataParsed).length === 0 || userDate === today) {
       const response = await axios.get(`https://www.alphavantage.co/query`, {
         params: {
           apikey: process.env.ALPHA_KEY,
