@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const baseURL = "http://localhost:3300/";
+const baseURL = "https://stock-api.krushang.dev/";
 const axiosBaseApi = axios.create({
   baseURL: baseURL + "api/",
   headers: {

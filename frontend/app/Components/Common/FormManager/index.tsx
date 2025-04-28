@@ -1,6 +1,6 @@
 import { checkTouched, checkValidation, inputHelper } from "@/app/helpers";
 import React, { useEffect, useState } from "react";
-import { FormManagerProps, Values } from "./types";
+import { FormManagerProps } from "./types";
 
 const FormManager = ({
   initialValues,
@@ -8,7 +8,7 @@ const FormManager = ({
   yupSchema,
   onSubmit,
 }: FormManagerProps) => {
-  let initialTouchValue: any = {};
+  const initialTouchValue: any = {};
   Object.keys(initialValues).map((x) => {
     initialTouchValue[x] = false;
   });
