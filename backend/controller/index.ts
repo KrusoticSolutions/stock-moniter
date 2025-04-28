@@ -180,7 +180,11 @@ const getStockDataByTicker = async (
     let redisDataParsed = JSON.parse(redisData ?? "{}");
 
     const today = new Date().toISOString().split("T")[0];
-
+    console.log(
+      "today",
+      Object.keys(redisDataParsed).length === 0,
+      redisDataParsed
+    );
     if (Object.keys(redisDataParsed).length === 0 || userDate === today) {
       const response = await axios.get(`https://www.alphavantage.co/query`, {
         params: {
@@ -189,7 +193,7 @@ const getStockDataByTicker = async (
           symbol: ticker,
           interval: "15min",
           outputsize: "full",
-          month: "2025-04",
+          month: monthData,
         },
       });
       await setRedisItem(
