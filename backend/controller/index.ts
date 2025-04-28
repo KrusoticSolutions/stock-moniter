@@ -295,88 +295,99 @@ const getUserAlert = async (req: express.Request, res: express.Response) => {
 
 const alertUsers = async () => {
   try {
-    const alertData = (await getDocs(collection(db, "alerts"))).docs.map(
-      (doc) => {
-        const data = doc.data();
-        return {
-          uid: doc.id,
-          ticker: data.ticker,
-          price: data.price,
-          increment: data.increment,
-        };
-      }
-    );
-    const userData = (await getDocs(collection(db, "users"))).docs.map(
-      (doc) => {
-        const data = doc.data();
-        return {
-          createdAt: data.createdAt,
-          email: data.email,
-          uid: data.uid,
-        };
-      }
-    );
-
-    const finalAlertData = [];
-
-    for (let i = 0; i < alertData.length; i++) {
-      const { ticker, price, increment } = alertData[i];
-      const index = userData.findIndex((item) => item.uid === alertData[i].uid);
-      finalAlertData.push({
-        ticker,
-        price,
-        increment,
-        email: userData[index].email,
-      });
-    }
-
-    const stockData = await getAllStockData();
-    const affectedAlerts = [];
-
-    for (let i = 0; i < finalAlertData.length; i++) {
-      const { ticker, price, increment, email } = finalAlertData[i];
-
-      const tickerIndex = stockData.findIndex((item) => item.symbol === ticker);
-
-      const stockPrice = stockData[tickerIndex]?.price;
-      const increasedPrice = stockPrice - Number(price);
-
-      if (increment && stockPrice > Number(price)) {
-        const mailData = await sendEmail(
-          email,
-          "Stock Alert",
-          `The stock price of ${ticker} has increased by ${increasedPrice}$ and is now at ${stockPrice}$`
-        );
-        affectedAlerts.push({
-          email,
-          ticker,
-          price: stockPrice,
-          mailData,
-        });
-      } else if (!increment && stockPrice < Number(price)) {
-        const mailData = await sendEmail(
-          email,
-          "Stock Alert",
-          `The stock price of ${ticker} has decreased by ${increasedPrice}$ and is now at ${stockPrice}$`
-        );
-        affectedAlerts.push({
-          email,
-          ticker,
-          price: stockPrice,
-          mailData,
-        });
-      }
-      console.log(
-        ticker,
-        "=====================>",
-        price,
-        increment,
-        stockPrice,
-        increasedPrice,
-        email
+    const marketOpenTime = new Date("2025-04-01T09:30:00Z").getTime();
+    const marketCloseTime = new Date("2025-04-01T16:00:00Z").getTime();
+    const currentTime = new Date().getTime();
+    if (currentTime < marketOpenTime || currentTime > marketCloseTime) {
+      console.log("Market is closed. No alerts will be sent.");
+    } else {
+      const alertData = (await getDocs(collection(db, "alerts"))).docs.map(
+        (doc) => {
+          const data = doc.data();
+          return {
+            uid: doc.id,
+            ticker: data.ticker,
+            price: data.price,
+            increment: data.increment,
+          };
+        }
       );
+      const userData = (await getDocs(collection(db, "users"))).docs.map(
+        (doc) => {
+          const data = doc.data();
+          return {
+            createdAt: data.createdAt,
+            email: data.email,
+            uid: data.uid,
+          };
+        }
+      );
+
+      const finalAlertData = [];
+
+      for (let i = 0; i < alertData.length; i++) {
+        const { ticker, price, increment } = alertData[i];
+        const index = userData.findIndex(
+          (item) => item.uid === alertData[i].uid
+        );
+        finalAlertData.push({
+          ticker,
+          price,
+          increment,
+          email: userData[index].email,
+        });
+      }
+
+      const stockData = await getAllStockData();
+      const affectedAlerts = [];
+
+      for (let i = 0; i < finalAlertData.length; i++) {
+        const { ticker, price, increment, email } = finalAlertData[i];
+
+        const tickerIndex = stockData.findIndex(
+          (item) => item.symbol === ticker
+        );
+
+        const stockPrice = stockData[tickerIndex]?.price;
+        const increasedPrice = stockPrice - Number(price);
+
+        if (increment && stockPrice > Number(price)) {
+          const mailData = await sendEmail(
+            email,
+            "Stock Alert",
+            `The stock price of ${ticker} has increased by ${increasedPrice}$ and is now at ${stockPrice}$`
+          );
+          affectedAlerts.push({
+            email,
+            ticker,
+            price: stockPrice,
+            mailData,
+          });
+        } else if (!increment && stockPrice < Number(price)) {
+          const mailData = await sendEmail(
+            email,
+            "Stock Alert",
+            `The stock price of ${ticker} has decreased by ${increasedPrice}$ and is now at ${stockPrice}$`
+          );
+          affectedAlerts.push({
+            email,
+            ticker,
+            price: stockPrice,
+            mailData,
+          });
+        }
+        console.log(
+          ticker,
+          "=====================>",
+          price,
+          increment,
+          stockPrice,
+          increasedPrice,
+          email
+        );
+      }
+      console.log("affectedAlerts", affectedAlerts);
     }
-    console.log("affectedAlerts", affectedAlerts);
   } catch (error) {
     console.error(error);
   }
